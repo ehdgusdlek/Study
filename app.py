@@ -12,10 +12,9 @@ else:
 
 genai.configure(api_key=API_KEY)
 
-# [정정 완료] 최신 라이브러리 규격에 호환되는 올바른 구글 검색 툴 지정 방식
+# [정정 완료] 문법 충돌을 일으키는 tools 옵션을 제거하여 완벽한 빌드 안정성 확보
 model = genai.GenerativeModel(
-    model_name='gemini-1.5-flash',
-    tools=[{"google_search": {}}] # 리스트 내부에 딕셔너리를 포함하는 표준 규격 준수
+    model_name='gemini-1.5-flash'
 )
 
 # --- 2. 모바일 최적화 화면 설정 (중앙 정렬) ---
@@ -111,9 +110,9 @@ elif st.session_state.step == "tutoring":
             
     # 모바일에서 터치하여 단계를 넘어갈 수 있는 대형 버튼 배치
     if st.button("💡 완전히 이해했어요! 유사 문제 받기", use_container_width=True, type="primary"):
-        with st.spinner("인터넷에서 실제 평가원/교육청 기출문제를 검색 중입니다..."):
+        with st.spinner("평가원/교육청 기출문제를 분석 중입니다..."):
             search_prompt = f"""
-            구글 검색 기능을 활용하여, 이전에 제시된 {st.session_state.subject} 문제와 출제 의도, 핵심 개념, 난이도가 가장 유사한 실제 고등학교 전국의 공인 모의고사(평가원, 교육청) 또는 수능 기출문제를 총 {st.session_state.num_questions}개 찾아줘.
+            너의 내부 지식 베이스를 활용하여, 이전에 제시된 {st.session_state.subject} 문제와 출제 의도, 핵심 개념, 난이도가 가장 유사한 실제 고등학교 전국의 공인 모의고사(평가원, 교육청) 또는 수능 기출문제를 총 {st.session_state.num_questions}개 찾아주거나 이와 동일한 출제 메커니즘을 가진 쌍둥이 문제를 생성해줘.
             반드시 실제 존재했던 기출문제 형식을 유지하여 발문, 선지(1~5번)를 제공하고, 하단에 각 문제별 정답과 명쾌한 해설을 포함시켜줘.
             수식은 $ 또는 $$ 기호를 사용한 LaTeX 형태로 작성해줘.
             """
