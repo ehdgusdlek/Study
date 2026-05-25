@@ -12,10 +12,10 @@ else:
 
 genai.configure(api_key=API_KEY)
 
-# 내장된 Google 검색 기능을 활성화하여 실제 모의고사 기출문제를 찾아오도록 설정
+# [정정 완료] Google 검색 기능(Grounding)을 공식 규격에 맞는 구조로 설정
 model = genai.GenerativeModel(
     model_name='gemini-1.5-flash',
-    tools='google_search' 
+    tools={'google_search': {}} 
 )
 
 # --- 2. 모바일 최적화 화면 설정 (중앙 정렬) ---
