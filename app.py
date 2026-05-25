@@ -6,6 +6,7 @@ from PIL import Image
 if "GEMINI_API_KEY" in st.secrets:
     API_KEY = st.secrets["GEMINI_API_KEY"]
 else:
+    # VS Code에서 로컬 테스트를 할 때는 아래에 본인의 API 키를 입력해 두면 됩니다.
     API_KEY = "여기에_발급받은_API_KEY를_입력하세요" 
 
 if not API_KEY or API_KEY.startswith("여기에"):
@@ -13,7 +14,9 @@ if not API_KEY or API_KEY.startswith("여기에"):
     st.stop()
 
 genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel(model_name='gemini-1.5-flash')
+
+# [정정 완료] 404 에러를 유발하는 구형 모델명 대신 최신 규격인 gemini-2.5-flash로 변경
+model = genai.GenerativeModel(model_name='gemini-2.5-flash')
 
 # --- 2. 모바일 최적화 화면 설정 ---
 st.set_page_config(
@@ -56,7 +59,6 @@ if st.session_state.step == "upload":
     if st.button("🔥 분석 및 튜터링 시작", use_container_width=True):
         if uploaded_file is not None and user_reason:
             with st.spinner("AI 튜터가 문제를 분석하고 있습니다..."):
-                # [정정 완료] 에러 메시지가 요구하는 순수 PIL.Image.Image 객체로 정확히 변환
                 img = Image.open(uploaded_file)
                 st.session_state.current_image = img
                 
@@ -69,7 +71,6 @@ if st.session_state.step == "upload":
                 """
                 
                 try:
-                    # 규격에 맞추어 prompt 텍스트와 순수 PIL 이미지 객체를 리스트로 묶어 전달
                     response = model.generate_content([prompt, img])
                     st.session_state.chat_history.append({"role": "ai", "text": response.text})
                     st.session_state.step = "tutoring"
