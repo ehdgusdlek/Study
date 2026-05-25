@@ -15,7 +15,7 @@ if not API_KEY or API_KEY.startswith("여기에"):
 genai.configure(api_key=API_KEY)
 
 # 네트워크 버그가 있는 2.5 대신 안정화된 2.0 모델 사용
-model = genai.GenerativeModel(model_name='gemini-2.0-flash')
+model = genai.GenerativeModel(model_name='gemini-1.5-pro')
 
 # --- 2. 모바일 최적화 화면 설정 ---
 st.set_page_config(
