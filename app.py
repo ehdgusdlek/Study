@@ -2,8 +2,14 @@ import streamlit as st
 import google.generativeai as genai
 from PIL import Image
 
-# --- 1. AI 모델 및 실시간 웹 검색(Grounding) 설정 ---
-# 발급받은 Gemini API 키를 입력하세요.
+# --- 1. AI 모델 및 보안 환경변수 설정 ---
+# Streamlit Cloud 배포 시 Advanced Settings에 등록한 'GEMINI_API_KEY'를 안전하게 인식합니다.
+if "GEMINI_API_KEY" in st.secrets:
+    API_KEY = st.secrets["GEMINI_API_KEY"]
+else:
+    # VS Code에서 로컬 테스트를 할 때는 아래에 본인의 API 키를 입력해 두면 됩니다.
+    API_KEY = "여기에_발급받은_API_KEY를_입력하세요" 
+
 genai.configure(api_key=API_KEY)
 
 # 내장된 Google 검색 기능을 활성화하여 실제 모의고사 기출문제를 찾아오도록 설정
