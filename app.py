@@ -1,7 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
 from PIL import Image
-import io
 
 # --- 1. AI 모델 및 보안 환경변수 설정 ---
 if "GEMINI_API_KEY" in st.secrets:
@@ -9,14 +8,11 @@ if "GEMINI_API_KEY" in st.secrets:
 else:
     API_KEY = "여기에_발급받은_API_KEY를_입력하세요" 
 
-# API 키가 정상적으로 설정되었는지 최소한의 방어 코드 추가
 if not API_KEY or API_KEY.startswith("여기에"):
-    st.error("🔑 Streamlit Cloud의 Settings -> Secrets에 'GEMINI_API_KEY'가 올바르게 등록되지 않았습니다. 값을 확인해 주세요.")
+    st.error("🔑 Streamlit Cloud의 Settings -> Secrets에 'GEMINI_API_KEY'가 올바르게 등록되지 않았습니다.")
     st.stop()
 
 genai.configure(api_key=API_KEY)
-
-# gRPC 안정성이 가장 높은 기본 세팅으로 모델 선언
 model = genai.GenerativeModel(model_name='gemini-1.5-flash')
 
 # --- 2. 모바일 최적화 화면 설정 ---
@@ -59,14 +55,11 @@ if st.session_state.step == "upload":
     
     if st.button("🔥 분석 및 튜터링 시작", use_container_width=True):
         if uploaded_file is not None and user_reason:
-            # gRPC 통신 에러를 방지하기 위해 이미지를 안전한 바이트 데이터 포맷으로 정형화
-            image_bytes = uploaded_file.read()
-            image_parts = [{"mime_type": uploaded_file.type, "data": image_bytes}]
-            
-            # 나중에 화면에 보여주기 위한 용도로만 PIL 이미지 저장
-            st.session_state.current_image = Image.open(io.BytesIO(image_bytes))
-            
             with st.spinner("AI 튜터가 문제를 분석하고 있습니다..."):
+                # [정정 완료] 에러 메시지가 요구하는 순수 PIL.Image.Image 객체로 정확히 변환
+                img = Image.open(uploaded_file)
+                st.session_state.current_image = img
+                
                 prompt = f"""
                 너는 대한민국 고등학생을 가르치는 전문 {st.session_state.subject} 튜터야.
                 사용자가 업로드한 문제 이미지를 텍스트로 정확히 변환하여 보여주고, 정답을 명시해줘.
@@ -76,13 +69,13 @@ if st.session_state.step == "upload":
                 """
                 
                 try:
-                    # PIL 객체 대신 안전하게 가공된 image_parts 구조체 전달하여 gRPC 에러 원천 차단
-                    response = model.generate_content([prompt, image_parts])
+                    # 규격에 맞추어 prompt 텍스트와 순수 PIL 이미지 객체를 리스트로 묶어 전달
+                    response = model.generate_content([prompt, img])
                     st.session_state.chat_history.append({"role": "ai", "text": response.text})
                     st.session_state.step = "tutoring"
                     st.rerun()
                 except Exception as e:
-                    st.error(f"❌ 구글 API 통신 중 오류가 발생했습니다. API 키가 유효한지 다시 확인해 주세요. 오류 내용: {e}")
+                    st.error(f"❌ 구글 API 통신 중 오류가 발생했습니다. 오류 내용: {e}")
         else:
             st.warning("사진과 오답 이유를 모두 입력해주세요.")
 
