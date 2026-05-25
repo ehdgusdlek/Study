@@ -12,10 +12,10 @@ else:
 
 genai.configure(api_key=API_KEY)
 
-# [정정 완료] Google 검색 기능(Grounding)을 공식 규격에 맞는 구조로 설정
+# [정정 완료] 최신 라이브러리 규격에 호환되는 올바른 구글 검색 툴 지정 방식
 model = genai.GenerativeModel(
     model_name='gemini-1.5-flash',
-    tools={'google_search': {}} 
+    tools=[{"google_search": {}}] # 리스트 내부에 딕셔너리를 포함하는 표준 규격 준수
 )
 
 # --- 2. 모바일 최적화 화면 설정 (중앙 정렬) ---
